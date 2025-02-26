@@ -13,11 +13,11 @@ But what are the differences between them? How should you choose a provider if y
 
 When users interact with an authentication system, they first notice whether the interface is user-friendly and whether the login methods meet their needs. Clients often require custom UI designs, such as adding company logos, and defining color schemes. Both Cognito and Auth0 offer customizable UI features for different clients.
 
-![Cognito Hosted UI](./pictures/1-01.png)
+![Cognito Hosted UI](pictures/1-01.png)
 
 Cognito’s UI customization options are limited, allowing changes only to colors, logos, buttons, and input field styles.
 
-![Auth0 Hosted UI](./pictures/1-02.png)
+![Auth0 Hosted UI](pictures/1-02.png)
 
 Auth0 offers a wider range of customization. Using its universal login feature, you can tailor the colors, fonts, logos, and layout of login, registration, password recovery, and MFA interfaces. It also provides Liquid templates to load different UI styles for different clients. Additionally, if more advanced customization is required, Auth0 offers three templates: Lock, Lock (passwordless), and Custom Login Form, via the Lock and auth0.js SDKs.
 
@@ -29,7 +29,7 @@ Cognito supports the following login methods:
 * Social login (Google, Apple, Facebook, Amazon)
 * Enterprise login (SAML, OIDC)
 
-![Cognito supported login methods](./pictures/1-03.png)
+![Cognito supported login methods](pictures/1-03.png)
 
 Auth0 expands on this with:
 
@@ -39,9 +39,9 @@ Auth0 expands on this with:
 
 Auth0’s configuration is more convenient and provides a wider range of options compared to Cognito.
 
-![Auth0 supported login methods](./pictures/1-04.png)
+![Auth0 supported login methods](pictures/1-04.png)
 
-![Auth0 supported social login methods](./pictures/1-05.png)
+![Auth0 supported social login methods](pictures/1-05.png)
 
 ### User Security
 
@@ -62,7 +62,7 @@ Auth0’s MFA options are more extensive, including:
 
 This variety ensures higher security and usability compared to Cognito’s SMS and OTP options.
 
-![Auth0 supported MFA](./pictures/1-06.png)
+![Auth0 supported MFA](pictures/1-06.png)
 
 ### User Preferences
 
@@ -105,7 +105,7 @@ Cognito Triggers: Implemented as Lambda functions that can be triggered at diffe
 
 Auth0: Offers Rules, Hooks, and Actions, all built on Node.js. Actions are the latest and most recommended approach, supporting external libraries and visual workflow management. Each deployment creates a new version, allowing quick rollback if needed.
 
-![Auth0 Actions Visual Editing Interface](./pictures/1-07.png)
+![Auth0 Actions Visual Editing Interface](pictures/1-07.png)
 
 ### System Monitoring
 
@@ -134,7 +134,7 @@ Cognito:
 * Does not support data export.
 * Only supports data import through Bulk migration or Lazy migration.。
 
-![Auth0 lazy migration](./pictures/1-08.png)
+![Auth0 lazy migration](pictures/1-08.png)
 
 ### SDK Support
 
