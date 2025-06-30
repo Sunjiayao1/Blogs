@@ -33,50 +33,47 @@ ingress-nginx-controller             LoadBalancer   10.102.191.210   <pending>  
 ```
 The `EXTERNAL-IP` of a LoadBalancer(LB) service is `<pending>` by default, because minikube runs in a local environment without access to a real cloud load balancer provider. When `minikube tunnel` is enabled, minikube simulates a cloud-like LB by creating a local proxy that forwards traffic. However, because minikube is using the Docker driver, services cannot bind to the host’s external network interface. As a result, Minikube falls back to using `127.0.0.1` as the external IP. In a real cloud environment (e.g: AWS or GCP), the LoadBalancer service would be assigned a proper external IP automatically.
 
-### Expose High Ports for Local Access
+## How to Access the Application
 To access your service from the host machine:
+
+### Option 1: Expose High Ports for Local Access
+
 ```shell
 minikube service ingress-nginx-controller -n ingress-nginx --url
 ```
-When using the Docker driver, Minikube cannot expose services on low ports like 80 or 443 directly on the host. The above command sets up a temporary port-forwarding from a random high port(e.g. 59239) to the ingress controller inside the cluster.
 
-## How to Access the Application
-You can access the application using 
+You can access the application using
 ```shell
-curl -vk  https://rust.local:<high port>/healthz
+curl -k  https://rust.local:<high port>/healthz
 ```
 If you omit the port (i.e. use the default https://rust.local/healthz), you may encounter a 502 Bad Gateway.
 
-### Why the High Port is Required
+#### Why the High Port is Required
 
-The high port (e.g: 59320) is dynamically allocated by `minikube service ... --url` and forward traffic from your host machine -> minikube high port → to your Ingress Controller → to your Rust app.
+When using the Docker driver, Minikube cannot expose services on low ports like `80` or `443` directly on the host. The above command sets up a temporary port-forwarding from a random high port(e.g. 59239) to the ingress controller inside the cluster.
 
-### Why port 443 doesn't work by default
-By convention, HTTPS traffc use port 443. However, on most systems, ports between 0 - 1023 are privileged ports that require root access. Since the Ingress Controller runs inside a container without root privileges, it cannot bind directly to port 443.
+#### Why port 443 doesn't work by default
+By convention, HTTPS traffic use port `443`. However, on most systems, ports between `0 - 1023` are privileged ports that require root access. Since the Ingress Controller runs inside a container don't have root privileges, it cannot bind directly to port `443`.
 
 Minikube solves this by exposing the ingress controller on a high-numbered port (e.g., 59320) that does not require elevated permissions.
 
-## How Requests Are Routed
-
+### Option 2: Start minikube tunnel
 ```shell
-Brower/curl (https://rust.local:<high port>)
-   ↓
-minikube port forwarding (127.0.0.1:<high port> -> ingress-nginx-controller:443 )
-   ↓
-ingress-nginx-controller(TLS termination)
-   ↓
-Ingress rule match (Host: rust.local, Path: /)
-   ↓
-forward to Service: login-service-cluster:80
-   ↓
-Service Selector find matching pod
-   ↓
-Forward to Pod (e.g. 10.244.0.118:8081)
-   ↓
-Rust app receives GET /healthz request
-   ↓
-return HTTP 200
+minikube tunnel
 ```
+You can access the application using
+```shell
+curl -k  https://rust.local/healthz
+```
+#### Why port is not required at this time
+When execute `minikube tunnel`, minikube starts a privileged process that listens on External IPs assigned to LB services, such as:
+`127.0.0.1`: for Docker driver and `<minikube ip>` for VirtualBox driver
+
+When access `https://rust.local:443`, the `etc/hosts` resolves `rust.local` to `127.0.0.1`, minikube detects this IP and port which belongs to a LoadBalancer Service's External IP. Then it forwards this request to the ingress controller.
+
+## How Requests are Routed
+
+![How Requests are Routed](pictures/3-1.png)
 
 ## Debug Tips:
 Here are some useful commands for debugging:
@@ -111,7 +108,7 @@ curl -v http://login-service-cluster.login-service.svc.cluster.local:8081/health
 
 6. Check Connection inside Pod
 ```shell
-kubectl exec -it login-service-api-787bf9c9b-stj2h -n login-service -- sh
+kubectl exec -it <login-service-pod-name> -n login-service -- sh
 sudo apt-get update && apt-get install curl
 curl -v http://127.0.0.1:8081/healthz
 ```
